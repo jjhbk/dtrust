@@ -23,7 +23,7 @@ Traditional fact-checking organizations, while essential, often face questions a
 
 ![alt text](architecture.jpg)
 
-## Tech Stack used
+### Tech Stack used
 
 ## Instructions
 

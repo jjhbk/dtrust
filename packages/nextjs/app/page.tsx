@@ -1,6 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import NFTUploader from "./nftuploader";
+import { verify } from "./verify";
+import { IDKitWidget, VerificationLevel } from "@worldcoin/idkit";
+import { type IVerifyResponse, verifyCloudProof } from "@worldcoin/idkit";
+import type { ISuccessResult } from "@worldcoin/idkit";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -8,61 +14,67 @@ import { Address } from "~~/components/scaffold-eth";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  const [isLoggedin, setIsLoggedIn] = useState(false);
+  const verifyProof = async (result: ISuccessResult) => {
+    console.log("Proof received from IDKit, sending to backend:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
+    const data = await verify(result);
+    if (data.success) {
+      console.log("Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
+    } else {
+      throw new Error(`Verification failed: ${data.detail}`);
+    }
+  };
+  const onSuccess = (result: ISuccessResult) => {
+    // This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
+    window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
+    setIsLoggedIn(true);
+  };
 
   return (
     <>
       <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
-          </div>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
-
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
+        {!isLoggedin && (
+          <IDKitWidget
+            app_id="app_b32e11cae186caacc520668c24363699"
+            action="login"
+            // On-chain only accepts Orb verifications
+            verification_level={VerificationLevel.Orb}
+            handleVerify={verifyProof}
+            onSuccess={onSuccess}
+          >
+            {({ open }) => (
+              <button className="btn btn-wide btn-xs sm:btn-sm md:btn-md lg:btn-lg bg-accent " onClick={open}>
+                Signin with World ID
+              </button>
+            )}
+          </IDKitWidget>
+        )}
+        {!isLoggedin && (
+          <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
+            <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
+              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
+                <BugAntIcon className="h-8 w-8 fill-secondary" />
+                <p>
+                  Tinker with your smart contract using the{" "}
+                  <Link href="/debug" passHref className="link">
+                    Debug Contracts
+                  </Link>{" "}
+                  tab.
+                </p>
+              </div>
+              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
+                <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
+                <p>
+                  Explore your local transactions with the{" "}
+                  <Link href="/blockexplorer" passHref className="link">
+                    Block Explorer
+                  </Link>{" "}
+                  tab.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

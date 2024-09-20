@@ -9,12 +9,13 @@ interface Metadata {
   bounty: string;
   uniqueProofs: string;
 }
+const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
+const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+console.log(
+  PINATA_JWT_KEY,
 
-const pinata = new PinataSDK({
-  pinataJwt: `${process.env.PINATA_JWT}`,
-  pinataGateway: `${process.env.NEXT_PUBLIC_GATEWAY_URL}`,
-});
-
+  PINATA_GATEWAY_URL,
+);
 const NFTUploader: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [description, setDescription] = useState<string>("");
@@ -28,6 +29,16 @@ const NFTUploader: React.FC = () => {
     setImage(file);
   };
 
+  const handleSubmit1 = async (event: FormEvent<HTMLFormElement>) => {
+    const pinata = new PinataSDK({
+      pinataJwt: process.env.PINATA_JWT!,
+      pinataGateway: "example-gateway.mypinata.cloud",
+    });
+    const file = new File(["hello"], "Testing.txt", { type: "text/plain" });
+
+    const upload = await pinata.upload.file(file);
+  };
+
   // Handle form submission
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,38 +50,13 @@ const NFTUploader: React.FC = () => {
 
     try {
       // Upload the image to Pinata
-
-      const formData = new FormData();
-      formData.append("file", image);
-
-      // Set metadata for the file
-      const metadata = JSON.stringify({
-        name: "NFT Image",
-        keyvalues: {
-          description,
-          bounty,
-          uniqueProofs,
-        },
+      const pinata = new PinataSDK({
+        pinataJwt: PINATA_JWT_KEY!,
+        pinataGateway: PINATA_GATEWAY_URL!,
       });
 
-      formData.append("pinataMetadata", metadata);
-
-      const options = JSON.stringify({
-        cidVersion: 1,
-      });
-
-      formData.append("pinataOptions", options);
-
-      const request = await fetch("https://uploads.pinata.cloud/v3/files", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.JWT_KEY}`,
-        },
-        body: formData,
-      });
-      const response = await request.json();
-      console.log(response);
-      const imageUrl = `https://gateway.pinata.cloud/ipfs/${imageResponse.data.IpfsHash}`;
+      const imageResponse = await pinata.upload.file(image);
+      const imageUrl = `https://gateway.pinata.cloud/ipfs/${imageResponse.IpfsHash}`;
 
       // Create metadata for the NFT
       const nftMetadata: Metadata = {
@@ -80,18 +66,12 @@ const NFTUploader: React.FC = () => {
         uniqueProofs,
       };
 
-      const formData2 = new FormData();
-      formData2.append();
       // Upload metadata to Pinata
-      const metadataResponse: any = await fetch("https://uploads.pinata.cloud/v3/files", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.JWT_KEY}`,
-        },
-        body: formData,
-      });
+      const metadataResponse = await pinata.upload.json(nftMetadata);
 
-      setIpfsUrl(`https://gateway.pinata.cloud/ipfs/${metadataResponse.data.IpfsHash}`);
+      console.log(metadataResponse);
+
+      setIpfsUrl(`https://gateway.pinata.cloud/ipfs/${metadataResponse.IpfsHash}`);
       alert("Image and metadata uploaded to IPFS via Pinata successfully!");
     } catch (error) {
       console.error("Error uploading to Pinata:", error);

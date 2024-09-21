@@ -7,6 +7,8 @@ import { useAccount } from "wagmi";
 
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+const DTRUST_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_CONTRACT_ADDRESS;
+const DTRUST_TOKEN_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_TOKEN_CONTRACT_ADDRESS;
 const VoteModal = ({ closeModal, index }: any) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(false);
@@ -41,12 +43,34 @@ const VoteModal = ({ closeModal, index }: any) => {
     }
   };
 
+  const handleproofSubmit = async (e: any) => {
+    e.preventDefault();
+    const url = await uploadToipfs();
+    if (url) {
+      const { request } = await publicClient.simulateContract({
+        address: DTRUST_ADDRESS as string,
+        abi: dtrustabi,
+        functionName: "vote",
+        args: [BigInt(index), result, url],
+        account: connectedAddress,
+      });
+      const newHash = await walletClient.writeContract(request);
+      console.log(newHash);
+      // Handle file submission logic
+      const transaction = await publicClient.waitForTransactionReceipt({
+        hash: newHash,
+      });
+      console.log(`limit approved ${transaction}`);
+      alert(`limit approved ${transaction}`);
+    }
+    closeModal();
+  };
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const url = await uploadToipfs();
     if (url) {
       const { request } = await publicClient.simulateContract({
-        address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+        address: DTRUST_ADDRESS as string,
         abi: dtrustabi,
         functionName: "vote",
         args: [BigInt(index), result, url],

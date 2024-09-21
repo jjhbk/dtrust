@@ -17,6 +17,8 @@ interface Metadata {
 }
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+const DTRUST_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_CONTRACT_ADDRESS;
+const DTRUST_TOKEN_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_TOKEN_CONTRACT_ADDRESS;
 console.log(
   PINATA_JWT_KEY,
 
@@ -40,10 +42,10 @@ const NFTUploader: React.FC = () => {
 
   const approveLimit = async () => {
     const { request } = await publicClient.simulateContract({
-      address: "0x870d1d8665588513afFe26B446385ffa4ec8eeC2",
+      address: DTRUST_TOKEN_ADDRESS as string,
       abi: dtrusttokenabi,
       functionName: "approve",
-      args: ["0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E", BigInt(bounty)],
+      args: [DTRUST_ADDRESS as string, BigInt(bounty)],
       account: connectedAddress,
     });
     const hash = await walletClient.writeContract(request);
@@ -56,16 +58,10 @@ const NFTUploader: React.FC = () => {
 
   const createBounty = async (url: string) => {
     const { request } = await publicClient.simulateContract({
-      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      address: DTRUST_ADDRESS as string,
       abi: dtrustabi,
       functionName: "createBounty",
-      args: [
-        "0x870d1d8665588513afFe26B446385ffa4ec8eeC2",
-        BigInt(bounty),
-        BigInt(uniqueProofs),
-        BigInt(timeLimit),
-        url,
-      ],
+      args: [DTRUST_TOKEN_ADDRESS as string, BigInt(bounty), BigInt(uniqueProofs), BigInt(timeLimit), url],
       account: connectedAddress,
     });
     const newHash = await walletClient.writeContract(request);

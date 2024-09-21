@@ -26,12 +26,16 @@ Traditional fact-checking organizations, while essential, often face questions a
 ### Tech Stack used
 
 1. World Coin - To verify uniquness & humanness for fair voting
+
 2. RootStock - To Deploy the verification game smart contract
    Contracts Deployed:
    D-Trust : 0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E
    D-TrustToken: 0x870d1d8665588513afFe26B446385ffa4ec8eeC2
 3. Scaffold Eth - To bootstrap a full Stack DApp
 4. Sign Protocol - To create omnichain attestations for Validator flow
+   Hook Contract: 0x0Fb484F2057e224D5f025B4bD5926669a5a32786
+   Schema Link: https://testnet-scan.sign.global/schema/onchain_evm_11155111_0x261
+5. IPFS - To store data in a decentralized fashion
 
 ## Instructions
 

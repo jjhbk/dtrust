@@ -35,7 +35,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
   };
   return (
     <div className="max-w-md p-4 bg-white border rounded shadow-md">
-      <h2 className="mb-2 text-xl font-bold">Bounty </h2>
+      <h2 className="mb-2 text-xl font-bold">{bounty[11]} </h2>
       <p>
         <strong>Creator:</strong> {bounty[0]}
       </p>
@@ -75,7 +75,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
       <div className="flex justify-between items-center p-4 border rounded bg-gray-100">
         {/* Left Button */}
         <button
-          onClick={!isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
+          onClick={isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Vote
@@ -83,7 +83,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
 
         {/* Right Button */}
         <button
-          onClick={!isLoggedin ? handleRefund : () => alert("Please signin to request refund")}
+          onClick={isLoggedin ? handleRefund : () => alert("Please signin to request refund")}
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
         >
           Refund

@@ -22,6 +22,7 @@ import { Address } from "~~/components/scaffold-eth";
 
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+const API_KEY = process.env.NEXT_PBULIC_FETCH_API_KEY;
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [isLoggedin, setIsLoggedIn] = useState(false);
@@ -51,9 +52,13 @@ const Home: NextPage = () => {
     for (let i = 1; i <= bountycount; i++) {
       const result = await contract.read.bounties([BigInt(i)]);
       console.log("result is:", result, i);
-      // const file = await fetchFiles(result[2]);
-      // console.log(file);
-      _bounties.push(result);
+      const file = await fetchFiles(result[2]);
+      console.log(file, typeof file, file.data.image);
+      let _result = [...result];
+      _result[2] = file.data.image;
+      _result[11] = file.data.description;
+
+      _bounties.push(_result);
     }
     console.log(..._bounties);
     setBounties([..._bounties]);
@@ -109,14 +114,14 @@ const Home: NextPage = () => {
   };
 
   const fetchFiles = async (cid: string) => {
-    cid = cid.replace("https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/", "");
-    console.log(cid);
+    let _cid = cid.replace("https://gateway.pinata.cloud/ipfs/", "");
+    console.log("cid is", cid, _cid);
     const pinata = new PinataSDK({
-      pinataJwt: PINATA_JWT_KEY!,
-      pinataGateway: PINATA_GATEWAY_URL!,
+      pinataJwt: PINATA_JWT_KEY,
+      pinataGatewayKey: API_KEY!,
+      pinataGateway: "gateway.pinata.cloud/ipfs",
     });
-
-    const file = await pinata.gateways.get("bafkreib4pqtikzdjlj4zigobmd63lig7u6oxlug24snlr6atjlmlza45dq");
+    const file = await pinata.gateways.get(_cid);
     console.log(file);
     return file;
   };
@@ -156,12 +161,18 @@ const Home: NextPage = () => {
           </IDKitWidget>
         )}
 
-        <div className="grid gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
           {bounties.map((bounty: any, index: any) => (
             <BountyCard key={index} bounty={bounty} index={index + 1} isLoggedin={isLoggedin} />
           ))}
         </div>
-        <button onClick={fetchBounties}>test</button>
+        {/*<button
+          onClick={() => {
+            fetchFiles("https://gateway.pinata.cloud/ipfs/bafkreif7y23eeeanz445nfnh6rqf42lzhoonxdgstrqzenlzjtiuua5ate");
+          }}
+        >
+          test
+        </button>*/}
       </div>
     </>
   );

@@ -25,7 +25,21 @@ Traditional fact-checking organizations, while essential, often face questions a
 
 ### Tech Stack used
 
+1. World Coin - To verify uniquness & humanness for fair voting
+2. RootStock - To Deploy the verification game smart contract
+   Contracts Deployed:
+   D-Trust : 0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E
+   D-TrustToken: 0x870d1d8665588513afFe26B446385ffa4ec8eeC2
+3. Scaffold Eth - To bootstrap a full Stack DApp
+4. Sign Protocol - To create omnichain attestations for Validator flow
+
 ## Instructions
+
+1. Sign-in using WorldCoin App to start voting on the platform & earn bounties
+
+2) Create a new Bounty to get any facts verifed.
+
+3) request refund of bounties whose threshold for successful verification is not reached
 
 ### contracts
 
@@ -43,5 +57,7 @@ yarn deploy
 ```
 
 ## Future steps
+
+1. Integrate
 
 ## Demo

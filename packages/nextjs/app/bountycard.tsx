@@ -40,13 +40,15 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
         <strong>Creator:</strong> {bounty[0]}
       </p>
       <div className="flex items-center justify-center mb-4 overflow-hidden bg-gray-200 rounded">
-        <img
-          src={String(
-            bounty[2] + "?pinataGatewayToken=TgDG2SRhpyABS-qJQZgojr-Kf4Zg8pmCzZ8UBgZN22HfSHwMoa3HvJyp0XTwnlrK",
-          )}
-          alt="Bounty"
-          className="object-cover w-full h-40"
-        />
+        <a href={bounty[2]} target="_blank">
+          <img
+            src={String(
+              bounty[2] + "?pinataGatewayToken=TgDG2SRhpyABS-qJQZgojr-Kf4Zg8pmCzZ8UBgZN22HfSHwMoa3HvJyp0XTwnlrK",
+            )}
+            alt="Bounty"
+            className="object-cover w-full h-40"
+          />
+        </a>
       </div>
       <p>
         <strong>Token:</strong> {bounty[1]}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import BountyCard from "./bountycard";
 import NFTUploader from "./nftuploader";
 import { verify } from "./verify";
 import { IDKitWidget, VerificationLevel } from "@worldcoin/idkit";
@@ -15,6 +16,34 @@ import { Address } from "~~/components/scaffold-eth";
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [isLoggedin, setIsLoggedIn] = useState(false);
+  const [bounties, setBounties] = useState([
+    {
+      creator: "0x1234567890abcdef1234567890abcdef12345678",
+      token: "0xTokenAddressHere1",
+      amount: 1000,
+      trueVotes: 10,
+      falseVotes: 5,
+      voteThreshold: 20,
+      deadline: Math.floor(Date.now() / 1000) + 86400, // 24 hours from now
+      isCompleted: false,
+      finalOutcome: false,
+      proof:
+        "https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/bafkreifaoqggdi45zi4j2uljxeijkl2sxiln5mvxgkacbu2gzj5jeqrkxq?pinataGatewayToken=TgDG2SRhpyABS-qJQZgojr-Kf4Zg8pmCzZ8UBgZN22HfSHwMoa3HvJyp0XTwnlrK", // Placeholder image URL
+    },
+    {
+      creator: "0xabcdef1234567890abcdef1234567890abcdef12",
+      token: "0xTokenAddressHere2",
+      amount: 2000,
+      trueVotes: 15,
+      falseVotes: 3,
+      voteThreshold: 25,
+      deadline: Math.floor(Date.now() / 1000) + 172800, // 48 hours from now
+      isCompleted: true,
+      finalOutcome: true,
+      proof: "https://via.placeholder.com/400x200", // Placeholder image URL
+    },
+    // Add more bounty objects as needed
+  ]);
   const verifyProof = async (result: ISuccessResult) => {
     console.log("Proof received from IDKit, sending to backend:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
     const data = await verify(result);
@@ -49,33 +78,12 @@ const Home: NextPage = () => {
             )}
           </IDKitWidget>
         )}
-        <NFTUploader />
-        {!isLoggedin && (
-          <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-            <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-                <BugAntIcon className="h-8 w-8 fill-secondary" />
-                <p>
-                  Tinker with your smart contract using the{" "}
-                  <Link href="/debug" passHref className="link">
-                    Debug Contracts
-                  </Link>{" "}
-                  tab.
-                </p>
-              </div>
-              <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-                <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-                <p>
-                  Explore your local transactions with the{" "}
-                  <Link href="/blockexplorer" passHref className="link">
-                    Block Explorer
-                  </Link>{" "}
-                  tab.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+
+        <div className="grid gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {bounties.map((bounty, index) => (
+            <BountyCard key={index} bounty={bounty} isLoggedin={isLoggedin} />
+          ))}
+        </div>
       </div>
     </>
   );

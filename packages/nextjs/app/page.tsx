@@ -11,6 +11,8 @@ import { IDKitWidget, VerificationLevel } from "@worldcoin/idkit";
 import { type IVerifyResponse, verifyCloudProof } from "@worldcoin/idkit";
 import type { ISuccessResult } from "@worldcoin/idkit";
 import type { NextPage } from "next";
+import { PinataSDK } from "pinata-web3";
+import { json } from "stream/consumers";
 import { getContract } from "viem";
 import { rootstockTestnet } from "viem/chains";
 import { useAccount } from "wagmi";
@@ -18,6 +20,8 @@ import { useReadContract } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
 
+const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
+const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [isLoggedin, setIsLoggedIn] = useState(false);
@@ -44,6 +48,8 @@ const Home: NextPage = () => {
     for (let i = 0; i < bountycount; i++) {
       const result = await contract.read.bounties([BigInt(1)]);
       console.log("result is:", result);
+      // const file = await fetchFiles(result[2]);
+      // console.log(file);
       _bounties.push(result);
     }
     setBounties([..._bounties]);
@@ -53,7 +59,7 @@ const Home: NextPage = () => {
       abi: dtrusttokenabi,
       functionName: "approve",
       args: ["0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E", BigInt(1000000000000000000)],
-      account: "0x08208F5518c622a0165DBC1432Bc2c361AdFFFB1",
+      account: connectedAddress,
     });
     const hash = await walletClient.writeContract(request);
     console.log(hash);
@@ -69,10 +75,46 @@ const Home: NextPage = () => {
         BigInt(2100),
         "https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/bafkreifaoqggdi45zi4j2uljxeijkl2sxiln5mvxgkacbu2gzj5jeqrkxq",
       ],
-      account: "0x08208F5518c622a0165DBC1432Bc2c361AdFFFB1",
+      account: connectedAddress,
+    });
+    const newHash = await walletClient.writeContract(request);
+    console.log(newHash);
+    const { request } = await publicClient.simulateContract({
+      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      abi: dtrustabi,
+      functionName: "vote",
+      args: [
+        BigInt(1),
+        true,
+        "https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/bafkreifaoqggdi45zi4j2uljxeijkl2sxiln5mvxgkacbu2gzj5jeqrkxq",
+      ],
+      account: connectedAddress,
+    });
+    const newHash1 = await walletClient.writeContract(request);
+    console.log(newHash);
+
+    const { request } = await publicClient.simulateContract({
+      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      abi: dtrustabi,
+      functionName: "refundBounty",
+      args: [BigInt(1)],
+      account: connectedAddress,
     });
     const newHash = await walletClient.writeContract(request);
     console.log(newHash);*/
+  };
+
+  const fetchFiles = async (cid: string) => {
+    cid = cid.replace("https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/", "");
+    console.log(cid);
+    const pinata = new PinataSDK({
+      pinataJwt: PINATA_JWT_KEY!,
+      pinataGateway: PINATA_GATEWAY_URL!,
+    });
+
+    const file = await pinata.gateways.get("bafkreib4pqtikzdjlj4zigobmd63lig7u6oxlug24snlr6atjlmlza45dq");
+    console.log(file);
+    return file;
   };
 
   const verifyProof = async (result: ISuccessResult) => {
@@ -112,7 +154,7 @@ const Home: NextPage = () => {
 
         <div className="grid gap-4 p-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {bounties.map((bounty: any, index: any) => (
-            <BountyCard key={index} bounty={bounty} isLoggedin={isLoggedin} />
+            <BountyCard key={index} bounty={bounty} index={index + 1} isLoggedin={isLoggedin} />
           ))}
         </div>
         <button onClick={fetchBounties}>test</button>

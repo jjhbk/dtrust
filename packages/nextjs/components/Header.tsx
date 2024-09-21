@@ -23,6 +23,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "create",
     href: "/create",
   },
+  {
+    label: "explorer",
+    href: "/blockexplorer",
+  },
 ];
 
 export const HeaderMenuLinks = () => {

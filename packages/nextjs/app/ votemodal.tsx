@@ -1,15 +1,57 @@
 // components/VoteModal.js
 import React, { useState } from "react";
+import { dtrustabi } from "./abi";
+import { publicClient, walletClient } from "./client";
+import { PinataSDK } from "pinata-web3";
+import { useAccount } from "wagmi";
 
-const VoteModal = ({ closeModal }: any) => {
+const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
+const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+const VoteModal = ({ closeModal, index }: any) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(false);
+  const [ipfsUrl, setIpfsUrl] = useState("");
+  const { address: connectedAddress } = useAccount();
+
   const handleFileChange = (e: any) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleSubmit = (e: any) => {
+  const uploadToipfs = async () => {
+    if (!selectedFile) {
+      alert("Please upload an image.");
+      return;
+    }
+
+    try {
+      // Upload the image to Pinata
+      const pinata = new PinataSDK({
+        pinataJwt: PINATA_JWT_KEY!,
+        pinataGateway: PINATA_GATEWAY_URL!,
+      });
+
+      const imageResponse = await pinata.upload.file(selectedFile);
+      setIpfsUrl(`https://gateway.pinata.cloud/ipfs/${imageResponse.IpfsHash}`);
+
+      alert("Image and metadata uploaded to IPFS via Pinata successfully!");
+    } catch (error) {
+      console.error("Error uploading to Pinata:", error);
+      alert("Failed to upload image or metadata.");
+    }
+  };
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+    await uploadToipfs();
+    const { request } = await publicClient.simulateContract({
+      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      abi: dtrustabi,
+      functionName: "vote",
+      args: [BigInt(index), result, ipfsUrl],
+      account: connectedAddress,
+    });
+    const newHash = await walletClient.writeContract(request);
+    console.log(newHash);
     // Handle file submission logic
     console.log("File uploaded:", selectedFile);
     closeModal();

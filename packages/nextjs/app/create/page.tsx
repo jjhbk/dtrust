@@ -2,8 +2,66 @@
 "use client";
 
 import React, { ChangeEvent, FormEvent, useState } from "react";
+import { dtrustabi, dtrusttokenabi } from "../abi";
+import { publicClient, walletClient } from "../client";
 import axios from "axios";
+import { time } from "console";
 import { PinataSDK } from "pinata-web3";
+import { useAccount } from "wagmi";
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
+
+// NFTUploader.tsx
 
 // NFTUploader.tsx
 
@@ -14,6 +72,7 @@ interface Metadata {
   description: string;
   bounty: string;
   uniqueProofs: string;
+  timeLimit: string;
 }
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
@@ -27,7 +86,10 @@ const NFTUploader: React.FC = () => {
   const [description, setDescription] = useState<string>("");
   const [bounty, setBounty] = useState<string>("");
   const [uniqueProofs, setUniqueProofs] = useState<string>("");
+  const [timeLimit, setTimeLimit] = useState<string>("");
+
   const [ipfsUrl, setIpfsUrl] = useState<string>("");
+  const { address: connectedAddress } = useAccount();
 
   // Handle image upload
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -35,20 +97,45 @@ const NFTUploader: React.FC = () => {
     setImage(file);
   };
 
-  const handleSubmit1 = async (event: FormEvent<HTMLFormElement>) => {
-    const pinata = new PinataSDK({
-      pinataJwt: process.env.PINATA_JWT!,
-      pinataGateway: "example-gateway.mypinata.cloud",
+  const approveLimit = async () => {
+    const { request } = await publicClient.simulateContract({
+      address: "0x870d1d8665588513afFe26B446385ffa4ec8eeC2",
+      abi: dtrusttokenabi,
+      functionName: "approve",
+      args: ["0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E", BigInt(bounty)],
+      account: connectedAddress,
     });
-    const file = new File(["hello"], "Testing.txt", { type: "text/plain" });
-
-    const upload = await pinata.upload.file(file);
+    const hash = await walletClient.writeContract(request);
+    const transaction = await publicClient.waitForTransactionReceipt({
+      hash: hash,
+    });
+    console.log(`limit approved ${transaction}`);
+    alert(`limit approved ${transaction}`);
   };
 
-  // Handle form submission
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const createBounty = async (url: string) => {
+    const { request } = await publicClient.simulateContract({
+      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      abi: dtrustabi,
+      functionName: "createBounty",
+      args: [
+        "0x870d1d8665588513afFe26B446385ffa4ec8eeC2",
+        BigInt(bounty),
+        BigInt(uniqueProofs),
+        BigInt(timeLimit),
+        url,
+      ],
+      account: connectedAddress,
+    });
+    const newHash = await walletClient.writeContract(request);
+    const transaction = await publicClient.waitForTransactionReceipt({
+      hash: newHash,
+    });
+    alert(`bounty created ${transaction}`);
+    console.log(`bounty created ${transaction}`);
+  };
 
+  const uploadToipfs = async () => {
     if (!image) {
       alert("Please upload an image.");
       return;
@@ -70,6 +157,7 @@ const NFTUploader: React.FC = () => {
         description,
         bounty,
         uniqueProofs,
+        timeLimit,
       };
 
       // Upload metadata to Pinata
@@ -79,15 +167,29 @@ const NFTUploader: React.FC = () => {
 
       setIpfsUrl(`https://gateway.pinata.cloud/ipfs/${metadataResponse.IpfsHash}`);
       alert("Image and metadata uploaded to IPFS via Pinata successfully!");
+      return `https://gateway.pinata.cloud/ipfs/${metadataResponse.IpfsHash}`;
     } catch (error) {
       console.error("Error uploading to Pinata:", error);
       alert("Failed to upload image or metadata.");
     }
   };
 
+  // Handle form submission
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const _ipfsurl = await uploadToipfs();
+
+    await approveLimit();
+
+    if (_ipfsurl) {
+      console.log(bounty, uniqueProofs, timeLimit, _ipfsurl);
+      await createBounty(_ipfsurl);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg w-full ">
-      <h2 className="text-xl font-bold mb-4">Upload NFT Metadata</h2>
+      <h2 className="text-xl font-bold mb-4">Upload Metadata</h2>
       <form onSubmit={handleSubmit} className="w-full">
         <input
           type="file"
@@ -120,8 +222,16 @@ const NFTUploader: React.FC = () => {
           className="input input-bordered w-full mb-4"
           required
         />
+        <input
+          type="number"
+          placeholder="time limit for the contest"
+          value={timeLimit}
+          onChange={e => setTimeLimit(e.target.value)}
+          className="input input-bordered w-full mb-4"
+          required
+        />
         <button type="submit" className="btn btn-primary w-full">
-          Upload to Pinata
+          Create Bounty
         </button>
       </form>
       {ipfsUrl && (

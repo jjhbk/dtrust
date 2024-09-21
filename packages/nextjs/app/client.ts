@@ -1,15 +1,15 @@
 import { createPublicClient, createWalletClient, http, custom } from 'viem'
-import { rootstockTestnet } from 'viem/chains'
+import { arbitrumSepolia, rootstockTestnet, sepolia } from 'viem/chains'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
 
 const publicClient = createPublicClient({
-    chain: rootstockTestnet,
+    chain: arbitrumSepolia,
     transport: http(),
 })
 
 // eg: Metamask
 const walletClient = createWalletClient({
-    chain: rootstockTestnet,
+    chain: arbitrumSepolia,
     transport: custom(window.ethereum!),
 })
 /*
@@ -21,7 +21,7 @@ export const provider = await EthereumProvider.init({
 })
 
 export const walletClientWC = createWalletClient({
-    chain: rootstockTestnet,
+    chain: arbitrumSepolia,
     transport: custom(provider),
 })*/
 export { publicClient, walletClient };

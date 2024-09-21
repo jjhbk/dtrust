@@ -1,20 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import { ISP } from "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
+import { ISPHook } from "@ethsign/sign-protocol-evm/src/interfaces/ISPHook.sol";
+import { Attestation } from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 
-interface IERC20 {
-	function transferFrom(
-		address sender,
-		address recipient,
-		uint256 amount
-	) external returns (bool);
-
-	function transfer(
-		address recipient,
-		uint256 amount
-	) external returns (bool);
-}
-
-contract FactCheckBounty {
+contract FactCheckBountyHook is ISPHook {
+	error UnsupportedOperation();
 	struct Vote {
 		bool vote; // True or false vote
 		string proof; // Proof link or file hash
@@ -60,7 +52,7 @@ contract FactCheckBounty {
 		uint256 _amount,
 		uint256 _voteThreshold,
 		uint256 _duration,
-		string calldata _proof
+		string calldata proof
 	) external {
 		require(_amount > 0, "Amount must be greater than zero");
 		require(_voteThreshold > 0, "Vote threshold must be greater than zero");
@@ -79,7 +71,7 @@ contract FactCheckBounty {
 		newBounty.amount = _amount;
 		newBounty.voteThreshold = _voteThreshold;
 		newBounty.deadline = block.timestamp + _duration;
-		newBounty.proof = _proof;
+		newBounty.proof = proof;
 
 		emit BountyCreated(
 			bountyCounter,
@@ -93,8 +85,8 @@ contract FactCheckBounty {
 	function vote(
 		uint256 _bountyId,
 		bool _vote,
-		string calldata _proof
-	) external {
+		string memory _proof
+	) internal {
 		Bounty storage bounty = bounties[_bountyId];
 		require(block.timestamp < bounty.deadline, "Voting period has ended");
 		require(!bounty.isCompleted, "Bounty already completed");
@@ -173,5 +165,54 @@ contract FactCheckBounty {
 		bool _vote
 	) external view returns (address[] memory) {
 		return bounties[_bountyId].votersList[_vote];
+	}
+
+	function didReceiveAttestation(
+		address, // attester
+		uint64, // schemaId
+		uint64 attestationId,
+		bytes calldata // extraData
+	) external payable {
+		Attestation memory attestation = ISP(msg.sender).getAttestation(
+			attestationId
+		);
+		(uint256 number, bool decision, string memory reason) = abi.decode(
+			attestation.data,
+			(uint256, bool, string)
+		);
+
+		// Pass the decoded values to the `vote` function
+		vote(number, decision, reason);
+	}
+
+	function didReceiveAttestation(
+		address, // attester
+		uint64, // schemaId
+		uint64, // attestationId
+		IERC20, // resolverFeeERC20Token
+		uint256, // resolverFeeERC20Amount
+		bytes calldata // extraData
+	) external pure {
+		revert UnsupportedOperation();
+	}
+
+	function didReceiveRevocation(
+		address, // attester
+		uint64, // schemaId
+		uint64, // attestationId
+		bytes calldata // extraData
+	) external payable {
+		revert UnsupportedOperation();
+	}
+
+	function didReceiveRevocation(
+		address, // attester
+		uint64, // schemaId
+		uint64, // attestationId
+		IERC20, // resolverFeeERC20Token
+		uint256, // resolverFeeERC20Amount
+		bytes calldata // extraData
+	) external pure {
+		revert UnsupportedOperation();
 	}
 }

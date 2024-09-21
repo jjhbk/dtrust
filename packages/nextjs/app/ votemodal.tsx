@@ -2,11 +2,24 @@
 import React, { useState } from "react";
 import { dtrustabi } from "./abi";
 import { publicClient, walletClient } from "./client";
+import {
+  EvmChains,
+  SignProtocolClient,
+  SpMode,
+  delegateSignAttestation,
+  delegateSignRevokeAttestation,
+  delegateSignSchema,
+} from "@ethsign/sp-sdk";
 import { PinataSDK } from "pinata-web3";
+import { getAddress } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import { useAccount } from "wagmi";
 
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
+const DTRUST_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_CONTRACT_ADDRESS;
+const DTRUST_TOKEN_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_TOKEN_CONTRACT_ADDRESS;
+const DTRUST_PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY;
 const VoteModal = ({ closeModal, index }: any) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(false);
@@ -41,12 +54,12 @@ const VoteModal = ({ closeModal, index }: any) => {
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleproofSubmit = async (e: any) => {
     e.preventDefault();
     const url = await uploadToipfs();
     if (url) {
       const { request } = await publicClient.simulateContract({
-        address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+        address: DTRUST_ADDRESS as string,
         abi: dtrustabi,
         functionName: "vote",
         args: [BigInt(index), result, url],
@@ -58,8 +71,27 @@ const VoteModal = ({ closeModal, index }: any) => {
       const transaction = await publicClient.waitForTransactionReceipt({
         hash: newHash,
       });
-      console.log(`limit approved ${transaction}`);
-      alert(`limit approved ${transaction}`);
+      console.log(`vote submitted ${transaction}`);
+      alert(`vote  submitted ${transaction}`);
+    }
+    closeModal();
+  };
+
+  const handleattestationSubmit = async (e: any) => {
+    e.preventDefault();
+    const url = await uploadToipfs();
+    const client = new SignProtocolClient(SpMode.OnChain, {
+      chain: EvmChains.arbitrumSepolia,
+      account: privateKeyToAccount(DTRUST_PRIVATE_KEY as `0x${string}`), // optional
+    });
+    if (url) {
+      const createAttestationRes = await client.createAttestation({
+        schemaId: "0xfe",
+        data: { bountyID: BigInt(index), result: result, proof: url, voter: getAddress(connectedAddress as string) },
+        indexingValue: "JJ",
+      });
+      console.log(createAttestationRes);
+      alert(`attestation successful ${createAttestationRes}`);
     }
     closeModal();
   };
@@ -68,7 +100,7 @@ const VoteModal = ({ closeModal, index }: any) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md p-6 bg-white rounded shadow-lg">
         <h2 className="mb-4 text-lg font-bold">Upload Image for Vote</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleattestationSubmit}>
           <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 mb-4 border rounded" />
           <div className="flex flex-col">
             {<label className="mb-2 text-sm font-medium text-gray-700">Vote Result</label>}

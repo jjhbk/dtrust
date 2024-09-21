@@ -7,6 +7,8 @@ import { dtrustabi } from "./abi";
 import { publicClient, walletClient } from "./client";
 import { useAccount } from "wagmi";
 
+const DTRUST_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_CONTRACT_ADDRESS;
+const DTRUST_TOKEN_ADDRESS = process.env.NEXT_PUBLIC_DTRUST_TOKEN_CONTRACT_ADDRESS;
 const BountyCard = ({ bounty, index, isLoggedin }: any) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { address: connectedAddress } = useAccount();
@@ -22,7 +24,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
   const handleRefund = async (e: any) => {
     e.preventDefault();
     const { request } = await publicClient.simulateContract({
-      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      address: DTRUST_ADDRESS as string,
       abi: dtrustabi,
       functionName: "refundBounty",
       args: [BigInt(index)],
@@ -77,7 +79,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
       <div className="flex justify-between items-center p-4 border rounded bg-gray-100">
         {/* Left Button */}
         <button
-          onClick={isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
+          onClick={!isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Vote

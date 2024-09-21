@@ -23,6 +23,7 @@ import { Address } from "~~/components/scaffold-eth";
 const PINATA_JWT_KEY = process.env.NEXT_PUBLIC_PINATA_JWT_KEY;
 const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
 const API_KEY = process.env.NEXT_PBULIC_FETCH_API_KEY;
+const DTRUST_CONTRACT = process.env.NEXT_PUBLIC_DTRUST_CONTRACT_ADDRESS;
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [isLoggedin, setIsLoggedIn] = useState(false);
@@ -40,7 +41,7 @@ const Home: NextPage = () => {
     // 1. Create contract instance
     console.log("fetching bounties");
     const contract = getContract({
-      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+      address: DTRUST_CONTRACT as string,
       abi: dtrustabi,
       // 1a. Insert a single client
       // 1b. Or public and/or wallet clients

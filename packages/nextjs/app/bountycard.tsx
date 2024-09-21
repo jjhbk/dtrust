@@ -79,7 +79,7 @@ const BountyCard = ({ bounty, index, isLoggedin }: any) => {
       <div className="flex justify-between items-center p-4 border rounded bg-gray-100">
         {/* Left Button */}
         <button
-          onClick={isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
+          onClick={!isLoggedin ? handleVoteClick : () => alert("Please signin to vote")}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Vote

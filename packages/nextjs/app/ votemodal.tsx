@@ -34,6 +34,7 @@ const VoteModal = ({ closeModal, index }: any) => {
       setIpfsUrl(`https://gateway.pinata.cloud/ipfs/${imageResponse.IpfsHash}`);
 
       alert("Image and metadata uploaded to IPFS via Pinata successfully!");
+      return `https://gateway.pinata.cloud/ipfs/${imageResponse.IpfsHash}`;
     } catch (error) {
       console.error("Error uploading to Pinata:", error);
       alert("Failed to upload image or metadata.");
@@ -42,18 +43,24 @@ const VoteModal = ({ closeModal, index }: any) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    await uploadToipfs();
-    const { request } = await publicClient.simulateContract({
-      address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
-      abi: dtrustabi,
-      functionName: "vote",
-      args: [BigInt(index), result, ipfsUrl],
-      account: connectedAddress,
-    });
-    const newHash = await walletClient.writeContract(request);
-    console.log(newHash);
-    // Handle file submission logic
-    console.log("File uploaded:", selectedFile);
+    const url = await uploadToipfs();
+    if (url) {
+      const { request } = await publicClient.simulateContract({
+        address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
+        abi: dtrustabi,
+        functionName: "vote",
+        args: [BigInt(index), result, url],
+        account: connectedAddress,
+      });
+      const newHash = await walletClient.writeContract(request);
+      console.log(newHash);
+      // Handle file submission logic
+      const transaction = await publicClient.waitForTransactionReceipt({
+        hash: newHash,
+      });
+      console.log(`limit approved ${transaction}`);
+      alert(`limit approved ${transaction}`);
+    }
     closeModal();
   };
 

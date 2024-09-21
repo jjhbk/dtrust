@@ -1,4 +1,3 @@
-// NFTUploader.tsx
 "use client";
 
 import React, { ChangeEvent, FormEvent, useState } from "react";
@@ -8,64 +7,6 @@ import axios from "axios";
 import { time } from "console";
 import { PinataSDK } from "pinata-web3";
 import { useAccount } from "wagmi";
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
-
-// NFTUploader.tsx
 
 interface Metadata {
   image: string;

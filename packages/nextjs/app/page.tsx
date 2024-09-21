@@ -25,17 +25,20 @@ const PINATA_GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL;
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const [isLoggedin, setIsLoggedIn] = useState(false);
+  const [datarun, setDatarun] = useState(false);
   const [bounties, setBounties] = useState<any>([
     // Add more bounty objects as needed
   ]);
   useEffect(() => {
-    fetchBounties();
-  }, [bounties.length]);
+    if (!datarun) {
+      fetchBounties();
+    }
+  }, []);
   // 2. Call contract methods, fetch events, listen to events, etc.
   const fetchBounties = async () => {
     // 1. Create contract instance
     console.log("fetching bounties");
-    const contract = await getContract({
+    const contract = getContract({
       address: "0xFe9c4fA65f3A0Da7Ac2D399F52E77a67ac5a244E",
       abi: dtrustabi,
       // 1a. Insert a single client
@@ -45,13 +48,14 @@ const Home: NextPage = () => {
     const bountycount = await contract.read.bountyCounter();
     let _bounties = [];
 
-    for (let i = 0; i < bountycount; i++) {
-      const result = await contract.read.bounties([BigInt(1)]);
-      console.log("result is:", result);
+    for (let i = 1; i <= bountycount; i++) {
+      const result = await contract.read.bounties([BigInt(i)]);
+      console.log("result is:", result, i);
       // const file = await fetchFiles(result[2]);
       // console.log(file);
       _bounties.push(result);
     }
+    console.log(..._bounties);
     setBounties([..._bounties]);
 
     /* const { request } = await publicClient.simulateContract({

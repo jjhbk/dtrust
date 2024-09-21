@@ -11,6 +11,7 @@ import {
   delegateSignSchema,
 } from "@ethsign/sp-sdk";
 import { PinataSDK } from "pinata-web3";
+import { getAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useAccount } from "wagmi";
 
@@ -85,11 +86,12 @@ const VoteModal = ({ closeModal, index }: any) => {
     });
     if (url) {
       const createAttestationRes = await client.createAttestation({
-        schemaId: "0xfd",
-        data: { bountyID: BigInt(index), result: result, proof: url },
+        schemaId: "0xfe",
+        data: { bountyID: BigInt(index), result: result, proof: url, voter: getAddress(connectedAddress as string) },
         indexingValue: "JJ",
       });
       console.log(createAttestationRes);
+      alert(`attestation successful ${createAttestationRes}`);
     }
     closeModal();
   };

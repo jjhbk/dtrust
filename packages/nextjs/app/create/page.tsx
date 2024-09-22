@@ -125,7 +125,7 @@ const NFTUploader: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 bg-white shadow rounded-lg ">
+    <div className="flex flex-col items-center p-8 bg-white shadow rounded-lg">
       <h2 className="text-xl font-bold mb-4">Upload Metadata</h2>
       <form onSubmit={handleSubmit} className="w-full">
         <input
@@ -179,10 +179,6 @@ const NFTUploader: React.FC = () => {
           </a>
         </div>
       )}
-      <div>
-        <img src="https://gateway.pinata.cloud/ipfs/bafybeighevqiihc7wnzwc6fohs7htp353a7v33mjke2fl2crtgll5abrvi" />
-        <div />
-      </div>
     </div>
   );
 };

@@ -91,7 +91,7 @@ const VoteModal = ({ closeModal, index }: any) => {
         indexingValue: "JJ",
       });
       console.log(createAttestationRes);
-      alert(`attestation successful ${createAttestationRes}`);
+      alert(`attestation successful ${JSON.stringify(createAttestationRes)}`);
     }
     closeModal();
   };

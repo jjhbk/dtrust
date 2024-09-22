@@ -93,11 +93,11 @@ export const Header = () => {
         </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
+            <img src="https://cyan-elaborate-puffin-862.mypinata.cloud/ipfs/bafkreifaoqggdi45zi4j2uljxeijkl2sxiln5mvxgkacbu2gzj5jeqrkxq?pinataGatewayToken=qTVZECPsYMKN3_A4D2aw2e-t2jL9PuEDsV4ANE3BEOwE-vidUI9d03NiIEWxJHHM" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
+            <span className="font-bold leading-tight">D-Trust</span>
+            <span className="text-xs">Distributed Truth</span>
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">

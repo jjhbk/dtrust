@@ -42,13 +42,16 @@ Traditional fact-checking organizations, while essential, often face questions a
 
 ## Instructions
 
-1. Sign-in using WorldCoin App to start voting on the platform & earn bounties
+1. Sign-in using WorldCoin prove your unique humanness.
 
-2) Create a new Bounty to get any facts verifed.
+2) Create a new Bounty to get any facts verifed by calling the D-Trust-Hook smart contract deployed on RootStock & Arbitrum Sepolia.
 
-3) Verify & Vote to earn bounties
+3) Define a Sign Schema for attestation, specify threshold for quorom of votes, time limit for community to provide attestations/ votes.
 
-4) request refund of bounties whose threshold for successful verification is not reached
+4) Verify & Vote to earn bounties. The users then upload proofs to ipfs & create attestation directed towards the D-Trust-Hook smart contract.
+5) Once a quorum is reached the bounty is distributed evenly between the winners.
+
+6) request refund of bounties whose quorum for successful verification is not reached within the specified time limit.
 
 ### contracts
 

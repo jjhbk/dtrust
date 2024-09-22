@@ -74,6 +74,8 @@ The frontend code is located in the packages/nextjs folder with a lots of bootst
 
 [Pitch Deck](https://www.canva.com/design/DAGRSZYdevo/4tTjWr_yYa9UGEduxgS9Xw/edit?utm_content=DAGRSZYdevo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
+[Demo Video](https://www.canva.com/design/DAGRbGJo7vA/pmQrQhiaeoElAvQRT6ZJkg/watch)
+
 ## Future steps
 
 - AI-Agent based Validation
